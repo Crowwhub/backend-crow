@@ -20,7 +20,8 @@ export class AuthService {
                 password : hashed,
 
             },
-        });
+   });
+        console.log(user, "user creted")
         return this.signToken(user.id, user.email);
         
 
@@ -38,7 +39,7 @@ export class AuthService {
 
         const ismatch = bcrypt.compareSync(Dto.password, user.password);
         if (!ismatch) throw new UnauthorizedException('Invalid credentials');
-
+        console.log(user , "user logged in successfully");
         return this.signToken (user.id, user.email);
    }
 
