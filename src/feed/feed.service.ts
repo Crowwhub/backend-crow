@@ -18,6 +18,7 @@ export class FeedService {
                 authorId: userId,
                contributorIds: dto.contributorIds || [],
                allowJoinTeam: dto.allowJoinTeam ?? false,
+               techstack: dto.techStack,
             },
         });
         return post;

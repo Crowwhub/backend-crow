@@ -1,5 +1,5 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsArray } from 'class-validator';
-import { PostType } from 'generated/prisma';
+import { PostType , VoteType } from 'generated/prisma';
 
 export class CreatePostDto {
   @IsString()
@@ -7,6 +7,7 @@ export class CreatePostDto {
 
   @IsString()
   description: string;
+
 
   @IsEnum(PostType)
   type: PostType; // "PRODUCT" | "PROJECT"
@@ -18,4 +19,8 @@ export class CreatePostDto {
   @IsBoolean()
   @IsOptional()
   allowJoinTeam?: boolean;
+
+  @IsString()
+ techStack: string;
 }
+

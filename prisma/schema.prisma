@@ -41,6 +41,7 @@ model Post {
   title          String
   description    String
   type           PostType
+  tech stack     string
   authorId       String
   author         User       @relation("UserPosts", fields: [authorId], references: [id])
   contributorIds String[]
