@@ -34,6 +34,11 @@ model User {
   posts          Post[]     @relation("UserPosts")
   comments       Comment[]  @relation("UserComments")
   votes          Vote[]
+  swipesGiven    Swipe[]     @relation("SwipesGiven")
+  swipesReceived Swipe[]     @relation("SwipesReceived")
+  matchesAsUser1 Match[]     @relation("User1Matches")
+  matchesAsUser2 Match[]     @relation("User2Matches")
+  chats          Chat[]      @relation("ChatParticipants")
 }
 
 model Post {
@@ -41,7 +46,7 @@ model Post {
   title          String
   description    String
   type           PostType
-  tech stack     string
+  techstack      String
   authorId       String
   author         User       @relation("UserPosts", fields: [authorId], references: [id])
   contributorIds String[]
@@ -84,4 +89,55 @@ enum PostType {
 enum VoteType {
   UPVOTE
   DOWNVOTE
+}
+
+
+model Swipe {
+  id        String         @id @default(uuid())
+  swiperId  String
+  swiper    User           @relation("SwipesGiven", fields: [swiperId], references: [id])
+  swipedId  String
+  swiped    User           @relation("SwipesReceived", fields: [swipedId], references: [id])
+  direction SwipeDirection
+  purpose   SwipePurpose
+  domain    String?         // optional domain/interest like AI, Web3
+  createdAt DateTime        @default(now())
+
+  @@unique([swiperId, swipedId])
+  @@index([swiperId, swipedId])
+}
+
+model Match {
+  id         String       @id @default(uuid())
+  user1Id    String
+  user2Id    String
+  user1      User         @relation("User1Matches", fields: [user1Id], references: [id])
+  user2      User         @relation("User2Matches", fields: [user2Id], references: [id])
+  purpose    SwipePurpose
+  createdAt  DateTime     @default(now())
+  chats      Chat[]       @relation("MatchChats") 
+
+  @@unique([user1Id, user2Id])
+}
+
+model Chat {
+  id         String     @id @default(uuid())
+  matchId    String
+  match     Match    @relation("MatchChats", fields: [matchId], references: [id])
+  senderId  String
+  sender     User       @relation("ChatParticipants", fields: [senderId], references: [id])
+  message    String
+  createdAt  DateTime   @default(now())
+}
+
+enum SwipeDirection {
+  RIGHT
+  LEFT
+}
+
+enum SwipePurpose {
+  COLLABORATION
+  HIRING
+  NETWORKING
+  CAREER_GUIDANCE
 }
