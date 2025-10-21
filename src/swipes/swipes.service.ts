@@ -40,4 +40,7 @@ export class SwipesService {
     }
 
 
+    async createSwipe(userID:  string , dto: CreateSwipeDto) {}
+
+
 }
