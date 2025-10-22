@@ -16,7 +16,15 @@ export class SwipesController {
     return this.swipesService.swipefeed(userID , dto)
   }
 
-  
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async createSwipe(@Req() req , @Body() dto : CreateSwipeDto){
+    const userId = req.user.sub;
+    return this.swipesService.createSwipe (userId , dto);
+
+  }
+
 
 
 
