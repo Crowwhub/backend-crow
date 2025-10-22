@@ -5,7 +5,6 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma /prisma.module';
 import { FeedModule } from './feed/feed.module';
 import { SwipesModule } from './swipes/swipes.module';
-import { SwipesModule } from './swipes/swipes.module';
 
 
 @Module({

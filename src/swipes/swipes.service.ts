@@ -40,7 +40,43 @@ export class SwipesService {
     }
 
 
-    async createSwipe(userID:  string , dto: CreateSwipeDto) {}
+    async createSwipe(userID:  string , dto: CreateSwipeDto) {
+        const {swipedId , direction } = dto;
+
+        const swipe = await this.prisma.swipr.create({
+            data :{
+                swiperId : userID ,
+                swipedId  ,
+                direction , 
+            }, 
+        });
+
+        //check if the dorection is right 
+        if (direction === SwipeDirection.RIGHT) {
+            const existingSwipe = await this.prisma.swipe.findFirst({
+                where :{
+                    swiperid : swipedId ,
+                    swipedId : userID ,
+                    direction : SwipeDirection.RIGHT,
+
+                },
+            });
+            if (existingSwipe){
+                await this.prisma.match.create ({
+                    data :{
+                        user1ID : userID ,
+                        user2ID : swipedId ,
+                    },
+                });
+                return { swipe , ismatch : true }
+
+            }
+            return{ swipe , ismatch : false}
+            
+
+        }
+
+    }
 
 
 }
