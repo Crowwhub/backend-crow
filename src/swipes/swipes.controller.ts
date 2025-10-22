@@ -24,8 +24,11 @@ export class SwipesController {
     return this.swipesService.createSwipe (userId , dto);
 
   }
-
-
-
+ @UseGuards(JwtAuthGuard) 
+  @Get('requests')
+  async getIncomingRequests(@Req() req) {
+  const userId = req.user.sub
+  return this.swipesService.getincomingSwipes(userId);
+}
 
 }

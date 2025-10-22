@@ -79,4 +79,37 @@ export class SwipesService {
     }
 
 
+    async getincomingSwipes(userId: string ) {
+        const Incoming = await this.prisma.swipe.findMany({
+            where : {
+                swipedId : userId ,
+                direction : 'RIGHT', 
+            },
+            select : {
+                where :{
+                    swiper :{
+                        select : {
+                            id: true,
+                            name: true,
+                            username: true,
+                            photo: true,
+                            skills: true,
+                            interests: true,
+                            purpose: true,
+                            personType: true,
+                            favouriteTools: true,
+                        }
+
+                    }
+                }
+            }
+
+        });
+        return Incoming.map(s => s.swiper)
+    
+    };
+
+
+
+
 }
