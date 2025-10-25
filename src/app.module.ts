@@ -5,10 +5,11 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma /prisma.module';
 import { FeedModule } from './feed/feed.module';
 import { SwipesModule } from './swipes/swipes.module';
+import { MatchesModule } from './matches/matches.module';
 
 
 @Module({
-  imports: [AuthModule , PrismaModule, FeedModule, SwipesModule],
+  imports: [AuthModule , PrismaModule, FeedModule, SwipesModule, MatchesModule],
   controllers: [AppController],
   providers: [AppService],
 })
