@@ -5,8 +5,8 @@ import { PrismaService } from '../prisma /prisma.service';
 @Injectable()
 export class MatchesService {
     constructor(private readonly prisma: PrismaService) {}
-
-
+  
+  
     async getUserMatches(userId: string){
         const matches = await this.prisma.match.findMany({
             where :{
@@ -30,6 +30,16 @@ export class MatchesService {
         createdAt : match.createdAt,
     })
     )
+    }
+
+
+    async deleteMatch(matchId: string){
+        await this.prisma.match.delete ({
+            where : {
+                id : matchId ,
+            }
+        });
+        return {match : 'deleted successfully'};
     }
 
 
