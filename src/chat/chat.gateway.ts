@@ -40,17 +40,18 @@ handleJoinRoom(
 
 @SubscribeMessage('sendMessage')
 async handleMessage(
-    @MessageBody() data : { matchId: string; senderId: string; content: string },
+    @MessageBody() data : { matchId: string; senderId: string; message: string },
 )
 {
     const savedMessage = await this.chatService.saveMessage(
       data.matchId,
       data.senderId,
-      data.message,
+      data.message 
     );
 
    this.server.to(data.matchId).emit('newMessage', savedMessage); 
 }
+
 
 
     
