@@ -12,7 +12,32 @@ export class ChatService {
     });
     }
 
-    
+
+
+    async getMessages(matchId: string){
+        const messages =  await this.prisma.chat.findMany({
+            where : { matchId  },
+            orderBy :{
+                createdAt : 'asc'
+            }
+         });
+
+         return messages;
+    }
+
+
+    async deleteMessage(matchId: string){
+        await this .prisma.chat.deleteMany({
+          where 
+          : { matchId  },
+        })
+    }
+
+   
+
+
+
+
 
 
 
