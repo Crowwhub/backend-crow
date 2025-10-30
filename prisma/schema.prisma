@@ -22,15 +22,17 @@ model User {
   interests      String[]
   favouriteTools String[]
   personType     String
-  skills         String[]
+  skills         String[]     // e.g. ["Node.js", "AI/ML"]
+ 
   madeTillFar    String?
   promptTagline  String?
   purpose        String?
+  domain         String?      // ✅ new: "Tech", "Design", etc
+  onboardingComplete Boolean @default(false)
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  // 👇 Relations
   posts          Post[]     @relation("UserPosts")
   comments       Comment[]  @relation("UserComments")
   votes          Vote[]
@@ -40,6 +42,7 @@ model User {
   matchesAsUser2 Match[]     @relation("User2Matches")
   chats          Chat[]      @relation("ChatParticipants")
 }
+
 
 model Post {
   id             String     @id @default(uuid())
