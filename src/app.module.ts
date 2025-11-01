@@ -7,10 +7,11 @@ import { FeedModule } from './feed/feed.module';
 import { SwipesModule } from './swipes/swipes.module';
 import { MatchesModule } from './matches/matches.module';
 import { ChatModule } from './chat/chat.module';
+import { UsersModule } from './users/users.module';
 
 
 @Module({
-  imports: [AuthModule , PrismaModule, FeedModule, SwipesModule, MatchesModule, ChatModule],
+  imports: [AuthModule , PrismaModule, FeedModule, SwipesModule, MatchesModule, ChatModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })

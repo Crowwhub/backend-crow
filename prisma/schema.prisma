@@ -26,7 +26,7 @@ model User {
  
   madeTillFar    String?
   promptTagline  String?
-  purpose        String?
+  purpose        String[]
   domain         String?      // ✅ new: "Tech", "Design", etc
   onboardingComplete Boolean @default(false)
 
