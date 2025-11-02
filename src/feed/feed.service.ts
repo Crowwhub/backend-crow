@@ -28,8 +28,8 @@ export class FeedService {
         const posts = await this.prisma.post.findMany ({
             include : {
                 author : true,
-                Comment : true,
-                Votes : true ,
+                comments : true,
+                votes : true ,
             },
               orderBy : {
             createdAt : 'desc',

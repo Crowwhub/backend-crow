@@ -64,9 +64,15 @@ export class UserService {
   }
 
   async updatePurpose(userId: string, dto: UpdatePurposeDto) {
+    const purposeValue = Array.isArray(dto.purpose)
+      ? dto.purpose
+      : dto.purpose
+      ? [dto.purpose]
+      : [];
+
     return this.prisma.user.update({
       where: { id: userId },
-      data: { purpose: dto.purpose },
+      data: { purpose: purposeValue },
     });
   }
 

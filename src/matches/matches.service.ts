@@ -11,8 +11,8 @@ export class MatchesService {
         const matches = await this.prisma.match.findMany({
             where :{
                 OR :[
-                    {user1ID : userId},
-                    {user2ID : userId},
+                    {user1Id : userId},
+                    {user2Id : userId},
                 ],
             },
             include :{
@@ -26,7 +26,7 @@ export class MatchesService {
         });
        return matches.map(match => ({
         matchId : match.id,
-        matchedwith : userId === match.user1ID ? match.user2 : match.user1,
+        matchedwith : userId === match.user1Id ? match.user2 : match.user1,
         createdAt : match.createdAt,
     })
     )
