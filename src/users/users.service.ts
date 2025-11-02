@@ -24,7 +24,7 @@ export class UserService {
         skills: true,
         interests: true,
         favouriteTools: true,
-        personType: true,
+       
         promptTagline: true,
         madeTillFar: true,
         purpose: true,
@@ -54,7 +54,7 @@ export class UserService {
       where: { id: userId },
       data: {
         name: dto.name,
-        personType: dto.personType,
+    
         interests: dto.interests,
         favouriteTools: dto.favouriteTools,
         promptTagline: dto.promptTagline,

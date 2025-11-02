@@ -21,7 +21,7 @@ model User {
   language       String?
   interests      String[]
   favouriteTools String[]
-  personType     String
+     
   skills         String[]     // e.g. ["Node.js", "AI/ML"]
  
   madeTillFar    String?

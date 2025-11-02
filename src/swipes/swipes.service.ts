@@ -31,7 +31,7 @@ export class SwipesService {
           skills: true,
           interests: true,
           purpose: true,
-          personType: true,
+      
           favouriteTools: true,
         },
     });
@@ -54,10 +54,7 @@ export class SwipesService {
                 swipedId ,
                 direction,
                 purpose: swiper?.purpose ?? [0] as any,  // MUST BE ARRAY
-
-                
-                
-            }, 
+}, 
         });
 
         //check if the dorection is right 
@@ -108,7 +105,7 @@ return { swipe, ismatch: false };
                         skills: true,
                         interests: true,
                         purpose: true,
-                        personType: true,
+                        
                         favouriteTools: true,
                     }
                 }

@@ -15,7 +15,7 @@ export class AuthService {
         const hashed = bcrypt.hashSync(Dto.password, 10);
         const user = await this.prisma.user.create({
             data : {
-                Username : Dto.username,
+                username : Dto.username,
                 email : Dto.email,
                 password : hashed,
 
@@ -44,7 +44,7 @@ export class AuthService {
    }
 
 
-   async signToken (userId: number, email: string) {
+   async signToken (userId: string, email: string) {
     const payload = {
         sub: userId,
         email,
