@@ -2,10 +2,13 @@ import { Module } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { MatchesController } from './matches.controller';
 import { PrismaService } from '../prisma /prisma.service';
+import { AuthModule } from '../auth/auth.module';
+
 
 
 @Module({
-  controllers: [MatchesController],
+   imports: [AuthModule],
+  controllers: [MatchesController ],
   providers: [MatchesService , PrismaService],
 })
 export class MatchesModule {}
