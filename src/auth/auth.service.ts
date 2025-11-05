@@ -22,7 +22,17 @@ export class AuthService {
             },
    });
         console.log(user, "user creted")
-        return this.signToken(user.id, user.email);
+        const token = await this.signToken(user.id, user.email);
+        return {
+        message: "Signup successful",
+        token,
+       user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+           },
+  };
+       
         
 
         
@@ -40,7 +50,16 @@ export class AuthService {
         const ismatch = bcrypt.compareSync(Dto.password, user.password);
         if (!ismatch) throw new UnauthorizedException('Invalid credentials');
         console.log(user , "user logged in successfully");
-        return this.signToken (user.id, user.email);
+        return {
+       message: "Login successful",
+       token: await this.signToken(user.id, user.email),
+       user: {
+       id: user.id,
+       username: user.username,
+       email: user.email,
+      }
+};
+
    }
 
 
@@ -50,6 +69,7 @@ export class AuthService {
         email,
     };
     const token = await this.jwtService.signAsync(payload);
+    return token;
     }
 
    
