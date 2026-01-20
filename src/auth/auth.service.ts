@@ -21,7 +21,7 @@ export class AuthService {
 
             },
    });
-        console.log(user, "user creted")
+        console.log(user, "user created")
         const token = await this.signToken(user.id, user.email);
         return {
         message: "Signup successful",
