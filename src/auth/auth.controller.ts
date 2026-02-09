@@ -18,4 +18,10 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('signup/request-otp')
+async signupRequest(@Body('email') email: string) {
+  return this.authService.signupRequest(email);
+}
+
+
 }
