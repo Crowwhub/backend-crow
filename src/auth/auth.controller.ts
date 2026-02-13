@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { RequestOtpDto } from './dto/request-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,9 +20,9 @@ export class AuthController {
   }
 
   @Post('signup/request-otp')
-async signupRequest(@Body('email') email: string) {
-  return this.authService.signupRequest(email);
-}
+  async signupRequest(@Body() dto: RequestOtpDto) {
+    return this.authService.signupRequest(dto);
+  }
 
 
 }

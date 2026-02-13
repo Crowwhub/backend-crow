@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma /prisma.service';
+import { SupabaseService } from 'src/supabase/supabase.service';
 
 import { JwtModule } from '@nestjs/jwt';
 
@@ -14,7 +15,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtAuthGuard],
+  providers: [AuthService, PrismaService, JwtAuthGuard , SupabaseService],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
