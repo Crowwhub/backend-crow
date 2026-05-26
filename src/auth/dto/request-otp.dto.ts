@@ -1,4 +1,6 @@
+import { IsEmail } from 'class-validator';
+
 export class RequestOtpDto {
-  email: string;
-  password: string;
+  @IsEmail()
+  email!: string;
 }

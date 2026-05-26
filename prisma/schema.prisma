@@ -15,23 +15,29 @@ model User {
   username       String    @unique
   password       String
   age            Int?
-  gender         String? 
+  gender         String?
   email          String    @unique
-  photo          String?
+  avatar         String?   // emoji avatar picked during onboarding
+  birthday       DateTime?
+  location       String?
   language       String?
   interests      String[]
-  favouriteTools String[]
-     
+
   skills         String[]     // e.g. ["Node.js", "AI/ML"]
- 
+
   madeTillFar    String?
   promptTagline  String?
   purpose        String[]
   domain         String?
-  personType        String?      // e.g. "Working Professional", "Student"
-  role              String?      // e.g. "Frontend Developer", "Designer"
-  experienceLevel   String?      // e.g. "Beginner", "Mid", "Senior"
-  exploringInterests String[]    // e.g. ["Frontend", "E-Gaming", "AI"]
+  personType         String?      // "student" | "professional" | "freelancer"
+  role               String?      // e.g. "Frontend Developer", "Designer"
+  experienceLevel    String?      // legacy text level (kept for backward compat)
+  experience         Int?         // years of paid work
+  practiceYears      Int?         // years including learning
+  exploringInterests String[]    // alias for interests in old API — kept for backward compat
+  findMeFor          String[]    // ["Leetcode partner", "Co-founder", "Matiks squad", ...]
+  goals              String[]
+  currentlyWorkingOn String?
   onboardingComplete Boolean @default(false)
 
   createdAt      DateTime  @default(now())

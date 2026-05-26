@@ -1,11 +1,35 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma /prisma.service";
-import { UpdateDomainDto } from "./dto/update-domian.dto";
-import { UpdateSkillsDto } from "./dto/update-skills.dto";
-import { UpdateProfileDto } from "./dto/update-profile.dto";
-import { UpdatePurposeDto } from "./dto/update-purpose.dto";
-import { UpdateNameGenderDto } from "./dto/update-name-gender.dto";
-import { UpdateExploringDto } from "./dto/update-exploring.dto";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma /prisma.service';
+import { UpdateMeDto } from './dto/update-me.dto';
+
+const PROFILE_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  username: true,
+  avatar: true,
+  birthday: true,
+  gender: true,
+  location: true,
+  personType: true,
+  role: true,
+  experience: true,
+  experienceLevel: true,
+  practiceYears: true,
+  domain: true,
+  skills: true,
+  interests: true,
+  exploringInterests: true,
+  findMeFor: true,
+  goals: true,
+  currentlyWorkingOn: true,
+  promptTagline: true,
+  madeTillFar: true,
+  purpose: true,
+  onboardingComplete: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 @Injectable()
 export class UserService {
@@ -14,87 +38,69 @@ export class UserService {
   async getMe(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        username: true,
-        photo: true,
-        gender: true,
-        personType: true,
-        role: true,
-        experienceLevel: true,
-        domain: true,
-        skills: true,
-        interests: true,
-        exploringInterests: true,
-        favouriteTools: true,
-        promptTagline: true,
-        madeTillFar: true,
-        purpose: true,
-        onboardingComplete: true,
-        createdAt: true,
-      },
+      select: PROFILE_SELECT,
     });
   }
 
-  async updateNameGender(userId: string, dto: UpdateNameGenderDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { name: dto.name, gender: dto.gender },
-    });
-  }
+  async updateMe(userId: string, dto: UpdateMeDto) {
+    const { birthday, ...rest } = dto;
+    const data: Record<string, unknown> = { ...rest };
 
-  async updateProfile(userId: string, dto: UpdateProfileDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        personType: dto.personType,
-        domain: dto.domain,
-        role: dto.role,
-        experienceLevel: dto.experienceLevel,
-      },
-    });
-  }
+    if (birthday !== undefined) {
+      data.birthday = birthday ? new Date(birthday) : null;
+    }
 
-  async updateDomain(userId: string, dto: UpdateDomainDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { domain: dto.domain },
-    });
-  }
-
-  async updateSkills(userId: string, dto: UpdateSkillsDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { skills: dto.skills },
-    });
-  }
-
-  async updatePurpose(userId: string, dto: UpdatePurposeDto) {
-    const purposeValue = Array.isArray(dto.purpose)
-      ? dto.purpose
-      : dto.purpose
-      ? [dto.purpose]
-      : [];
+    // Mirror interests → exploringInterests for backward-compat with the older
+    // swipes/feed code paths that still reference the legacy field name.
+    if (dto.interests !== undefined) {
+      data.exploringInterests = dto.interests;
+    }
 
     return this.prisma.user.update({
       where: { id: userId },
-      data: { purpose: purposeValue },
-    });
-  }
-
-  async updateExploring(userId: string, dto: UpdateExploringDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { exploringInterests: dto.exploringInterests },
+      data,
+      select: PROFILE_SELECT,
     });
   }
 
   async completeOnboarding(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: PROFILE_SELECT,
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const missing: string[] = [];
+    if (!user.name?.trim()) missing.push('name');
+    if (!user.avatar) missing.push('avatar');
+    if (!user.birthday) missing.push('birthday');
+    if (!user.gender) missing.push('gender');
+    if (!user.location?.trim()) missing.push('location');
+    if (!user.personType) missing.push('personType');
+    if (!user.domain) missing.push('domain');
+    if (user.experience === null || user.experience === undefined) {
+      missing.push('experience');
+    }
+    if (user.practiceYears === null || user.practiceYears === undefined) {
+      missing.push('practiceYears');
+    }
+    if (!user.skills?.length) missing.push('skills');
+
+    if (missing.length > 0) {
+      throw new BadRequestException({
+        code: 'ONBOARDING_INCOMPLETE',
+        message: `Required fields missing: ${missing.join(', ')}`,
+        missing,
+      });
+    }
+
     return this.prisma.user.update({
       where: { id: userId },
       data: { onboardingComplete: true },
+      select: PROFILE_SELECT,
     });
   }
 }

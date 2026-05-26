@@ -27,12 +27,10 @@ export class SwipesService {
           id: true,
           name: true,
           username: true,
-          photo: true,
+          avatar: true,
           skills: true,
           interests: true,
           purpose: true,
-      
-          favouriteTools: true,
         },
     });
         return users;
@@ -101,12 +99,10 @@ return { swipe, ismatch: false };
                         id: true,
                         name: true,
                         username: true,
-                        photo: true,
+                        avatar: true,
                         skills: true,
                         interests: true,
                         purpose: true,
-                        
-                        favouriteTools: true,
                     }
                 }
             }

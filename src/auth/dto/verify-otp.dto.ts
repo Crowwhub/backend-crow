@@ -1,6 +1,24 @@
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  Length,
+  MinLength,
+} from 'class-validator';
+
 export class VerifyOtpDto {
-  email: string;
-  otp: string;
-  password: string;
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @Length(6, 6)
+  otp!: string;
+
+  @IsString()
+  @MinLength(8)
+  password!: string;
+
+  @IsOptional()
+  @IsString()
   username?: string;
 }
