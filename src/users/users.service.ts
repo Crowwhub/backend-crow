@@ -4,6 +4,8 @@ import { UpdateDomainDto } from "./dto/update-domian.dto";
 import { UpdateSkillsDto } from "./dto/update-skills.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { UpdatePurposeDto } from "./dto/update-purpose.dto";
+import { UpdateNameGenderDto } from "./dto/update-name-gender.dto";
+import { UpdateExploringDto } from "./dto/update-exploring.dto";
 
 @Injectable()
 export class UserService {
@@ -18,19 +20,39 @@ export class UserService {
         email: true,
         username: true,
         photo: true,
-
-        // onboarding fields
+        gender: true,
+        personType: true,
+        role: true,
+        experienceLevel: true,
         domain: true,
         skills: true,
         interests: true,
+        exploringInterests: true,
         favouriteTools: true,
-       
         promptTagline: true,
         madeTillFar: true,
         purpose: true,
         onboardingComplete: true,
-
         createdAt: true,
+      },
+    });
+  }
+
+  async updateNameGender(userId: string, dto: UpdateNameGenderDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { name: dto.name, gender: dto.gender },
+    });
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        personType: dto.personType,
+        domain: dto.domain,
+        role: dto.role,
+        experienceLevel: dto.experienceLevel,
       },
     });
   }
@@ -49,20 +71,6 @@ export class UserService {
     });
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        name: dto.name,
-    
-        interests: dto.interests,
-        favouriteTools: dto.favouriteTools,
-        promptTagline: dto.promptTagline,
-        madeTillFar: dto.madeTillFar,
-      },
-    });
-  }
-
   async updatePurpose(userId: string, dto: UpdatePurposeDto) {
     const purposeValue = Array.isArray(dto.purpose)
       ? dto.purpose
@@ -76,6 +84,13 @@ export class UserService {
     });
   }
 
+  async updateExploring(userId: string, dto: UpdateExploringDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { exploringInterests: dto.exploringInterests },
+    });
+  }
+
   async completeOnboarding(userId: string) {
     return this.prisma.user.update({
       where: { id: userId },
@@ -83,4 +98,3 @@ export class UserService {
     });
   }
 }
-

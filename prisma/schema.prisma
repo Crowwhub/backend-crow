@@ -27,7 +27,11 @@ model User {
   madeTillFar    String?
   promptTagline  String?
   purpose        String[]
-  domain         String?      // ✅ new: "Tech", "Design", etc
+  domain         String?
+  personType        String?      // e.g. "Working Professional", "Student"
+  role              String?      // e.g. "Frontend Developer", "Designer"
+  experienceLevel   String?      // e.g. "Beginner", "Mid", "Senior"
+  exploringInterests String[]    // e.g. ["Frontend", "E-Gaming", "AI"]
   onboardingComplete Boolean @default(false)
 
   createdAt      DateTime  @default(now())

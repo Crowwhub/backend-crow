@@ -1,21 +1,16 @@
-import { IsArray, IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from 'class-validator';
 
+// Page 2: professional info
 export class UpdateProfileDto {
-  @IsOptional() @IsString()
-  name?: string;
-
   @IsOptional() @IsString()
   personType?: string;
 
-  @IsOptional() @IsArray() @IsString({ each: true })
-  interests?: string[];
-
-  @IsOptional() @IsArray() @IsString({ each: true })
-  favouriteTools?: string[];
+  @IsOptional() @IsString()
+  domain?: string;
 
   @IsOptional() @IsString()
-  promptTagline?: string;
+  role?: string;
 
   @IsOptional() @IsString()
-  madeTillFar?: string;
+  experienceLevel?: string;
 }
