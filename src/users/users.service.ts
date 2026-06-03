@@ -25,7 +25,6 @@ const PROFILE_SELECT = {
   currentlyWorkingOn: true,
   promptTagline: true,
   madeTillFar: true,
-  purpose: true,
   onboardingComplete: true,
   createdAt: true,
   updatedAt: true,

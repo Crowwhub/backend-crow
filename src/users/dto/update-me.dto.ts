@@ -12,7 +12,6 @@ import {
 } from 'class-validator';
 
 const GENDERS = ['male', 'female', 'non-binary', 'prefer-not-to-say'] as const;
-const TYPES = ['student', 'professional', 'freelancer'] as const;
 
 export class UpdateMeDto {
   // Step 1 — Profile
@@ -33,8 +32,10 @@ export class UpdateMeDto {
   location?: string;
 
   // Step 3 — Role / Work
-  @IsOptional() @IsString() @IsIn([...TYPES])
-  personType?: (typeof TYPES)[number];
+  // Free-text; common values are 'student' | 'professional' | 'freelancer' | 'other'
+  // but users can supply a custom label via the onboarding "Other" option.
+  @IsOptional() @IsString() @MinLength(1) @MaxLength(60)
+  personType?: string;
 
   @IsOptional() @IsString() @MaxLength(80)
   domain?: string;
@@ -52,23 +53,19 @@ export class UpdateMeDto {
   @IsOptional() @IsArray() @ArrayMaxSize(40) @IsString({ each: true })
   skills?: string[];
 
-  // Step 5 — Purpose (ordered)
-  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsString({ each: true })
-  purpose?: string[];
-
-  // Step 6 — Interests
+  // Step 5 — Interests
   @IsOptional() @IsArray() @ArrayMaxSize(40) @IsString({ each: true })
   interests?: string[];
 
-  // Step 7 — Find me for
+  // Step 6 — Find me for
   @IsOptional() @IsArray() @ArrayMaxSize(40) @IsString({ each: true })
   findMeFor?: string[];
 
-  // Step 8 — Goals
+  // Step 7 — Goals
   @IsOptional() @IsArray() @ArrayMaxSize(15) @IsString({ each: true })
   goals?: string[];
 
-  // Step 9 — Currently working on
+  // Step 8 — Currently working on
   @IsOptional() @IsString() @MaxLength(280)
   currentlyWorkingOn?: string;
 }

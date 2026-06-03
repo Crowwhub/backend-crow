@@ -27,7 +27,6 @@ model User {
 
   madeTillFar    String?
   promptTagline  String?
-  purpose        String[]
   domain         String?
   personType         String?      // "student" | "professional" | "freelancer"
   role               String?      // e.g. "Frontend Developer", "Designer"
@@ -112,7 +111,7 @@ model Swipe {
   swipedId  String
   swiped    User           @relation("SwipesReceived", fields: [swipedId], references: [id])
   direction SwipeDirection
-  purpose   SwipePurpose
+  intent    String?         // findMeFor value the swiper was looking for (e.g. "Co-founder")
   domain    String?         // optional domain/interest like AI, Web3
   createdAt DateTime        @default(now())
 
@@ -126,9 +125,9 @@ model Match {
   user2Id    String
   user1      User         @relation("User1Matches", fields: [user1Id], references: [id])
   user2      User         @relation("User2Matches", fields: [user2Id], references: [id])
-  purpose    SwipePurpose
+  intent     String?
   createdAt  DateTime     @default(now())
-  chats      Chat[]       @relation("MatchChats") 
+  chats      Chat[]       @relation("MatchChats")
 
   @@unique([user1Id, user2Id])
 }
@@ -146,11 +145,4 @@ model Chat {
 enum SwipeDirection {
   RIGHT
   LEFT
-}
-
-enum SwipePurpose {
-  COLLABORATION
-  HIRING
-  NETWORKING
-  CAREER_GUIDANCE
 }
