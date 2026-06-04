@@ -50,6 +50,21 @@ model User {
   matchesAsUser1 Match[]     @relation("User1Matches")
   matchesAsUser2 Match[]     @relation("User2Matches")
   chats          Chat[]      @relation("ChatParticipants")
+  likesGiven     ProfileLike[] @relation("ProfileLikesGiven")
+  likesReceived  ProfileLike[] @relation("ProfileLikesReceived")
+}
+
+model ProfileLike {
+  id           String   @id @default(uuid())
+  likerId      String
+  liker        User     @relation("ProfileLikesGiven", fields: [likerId], references: [id])
+  likedUserId  String
+  likedUser    User     @relation("ProfileLikesReceived", fields: [likedUserId], references: [id])
+  itemKey      String   // e.g. "goal:Land a job at FAANG", "skill:React", "workingOn"
+  createdAt    DateTime @default(now())
+
+  @@unique([likerId, likedUserId, itemKey])
+  @@index([likedUserId])
 }
 
 
