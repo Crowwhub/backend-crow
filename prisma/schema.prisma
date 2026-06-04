@@ -113,6 +113,7 @@ model Swipe {
   direction SwipeDirection
   intent    String?         // findMeFor value the swiper was looking for (e.g. "Co-founder")
   domain    String?         // optional domain/interest like AI, Web3
+  filters   Json?           // advanced filters applied at swipe time: { personType?, location?, interest?, goal?, skill? }
   createdAt DateTime        @default(now())
 
   @@unique([swiperId, swipedId])

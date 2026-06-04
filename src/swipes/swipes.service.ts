@@ -66,15 +66,41 @@ export class SwipesService {
 
 
     async createSwipe(userID: string, dto: CreateSwipeDto) {
-        const { swipedId, direction, intent, domain } = dto;
+        const { swipedId, direction, intent, domain, filters } = dto;
 
-        const swipe = await this.prisma.swipe.create({
-            data: {
+        // Drop empty/undefined entries before persisting so the JSON column
+        // doesn't carry useless keys.
+        const trimmedFilters = filters
+            ? Object.fromEntries(
+                Object.entries(filters).filter(
+                    ([, v]) => typeof v === 'string' && v.trim().length > 0,
+                ),
+            )
+            : null;
+        const filtersToStore =
+            trimmedFilters && Object.keys(trimmedFilters).length > 0
+                ? trimmedFilters
+                : null;
+
+        // Idempotent: a duplicate POST for the same (swiper, swiped) pair
+        // updates rather than throwing P2002.
+        const swipe = await this.prisma.swipe.upsert({
+            where: {
+                swiperId_swipedId: { swiperId: userID, swipedId },
+            },
+            create: {
                 swiperId: userID,
                 swipedId,
                 direction,
                 intent: intent ?? null,
                 domain: domain ?? null,
+                filters: filtersToStore ?? undefined,
+            },
+            update: {
+                direction,
+                intent: intent ?? null,
+                domain: domain ?? null,
+                filters: filtersToStore ?? undefined,
             },
         });
 
@@ -87,13 +113,26 @@ export class SwipesService {
                 },
             });
             if (existingSwipe) {
-                await this.prisma.match.create({
-                    data: {
-                        user1Id: userID,
-                        user2Id: swipedId,
-                        intent: swipe.intent ?? existingSwipe.intent ?? null,
+                // A match may already exist from a prior accept — check both
+                // directions because (user1Id, user2Id) ordering depends on
+                // who hit Accept first.
+                const existingMatch = await this.prisma.match.findFirst({
+                    where: {
+                        OR: [
+                            { user1Id: userID, user2Id: swipedId },
+                            { user1Id: swipedId, user2Id: userID },
+                        ],
                     },
                 });
+                if (!existingMatch) {
+                    await this.prisma.match.create({
+                        data: {
+                            user1Id: userID,
+                            user2Id: swipedId,
+                            intent: swipe.intent ?? existingSwipe.intent ?? null,
+                        },
+                    });
+                }
                 return { swipe, ismatch: true };
             }
             return { swipe, ismatch: false };
@@ -122,6 +161,7 @@ export class SwipesService {
                 id: true,
                 intent: true,
                 domain: true,
+                filters: true,
                 createdAt: true,
                 swiper: {
                     select: {
@@ -147,6 +187,7 @@ export class SwipesService {
             swipeId: s.id,
             intent: s.intent,
             domain: s.domain,
+            filters: s.filters,
             createdAt: s.createdAt,
             user: s.swiper,
         }));
