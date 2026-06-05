@@ -37,6 +37,8 @@ model User {
   findMeFor          String[]    // ["Leetcode partner", "Co-founder", "Matiks squad", ...]
   goals              String[]
   currentlyWorkingOn String?
+  college            String?     // optional school/university label
+  company            String?     // optional current company (typically for professionals)
   onboardingComplete Boolean @default(false)
 
   createdAt      DateTime  @default(now())
