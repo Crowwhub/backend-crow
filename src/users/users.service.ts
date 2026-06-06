@@ -13,6 +13,8 @@ const PROFILE_SELECT = {
   location: true,
   personType: true,
   role: true,
+  company: true,
+  college: true,
   experience: true,
   experienceLevel: true,
   practiceYears: true,

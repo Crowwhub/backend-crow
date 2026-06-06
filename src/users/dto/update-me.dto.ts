@@ -43,6 +43,14 @@ export class UpdateMeDto {
   @IsOptional() @IsString() @MaxLength(120)
   role?: string;
 
+  // Current company (typically for working professionals).
+  @IsOptional() @IsString() @MaxLength(120)
+  company?: string;
+
+  // School/university label. UI labels this "Education".
+  @IsOptional() @IsString() @MaxLength(120)
+  college?: string;
+
   @IsOptional() @IsInt() @Min(0)
   experience?: number;
 

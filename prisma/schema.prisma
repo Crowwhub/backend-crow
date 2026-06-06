@@ -52,6 +52,7 @@ model User {
   matchesAsUser1 Match[]     @relation("User1Matches")
   matchesAsUser2 Match[]     @relation("User2Matches")
   chats          Chat[]      @relation("ChatParticipants")
+  chatReads      ChatRead[]  @relation("ChatReads")
   likesGiven     ProfileLike[] @relation("ProfileLikesGiven")
   likesReceived  ProfileLike[] @relation("ProfileLikesReceived")
 }
@@ -146,6 +147,7 @@ model Match {
   intent     String?
   createdAt  DateTime     @default(now())
   chats      Chat[]       @relation("MatchChats")
+  reads      ChatRead[]   @relation("MatchReads")
 
   @@unique([user1Id, user2Id])
 }
@@ -158,6 +160,21 @@ model Chat {
   sender     User       @relation("ChatParticipants", fields: [senderId], references: [id])
   message    String
   createdAt  DateTime   @default(now())
+}
+
+// Per-participant read marker for a match's chat. One row per (match, user);
+// `lastReadAt` advances as the user views the conversation. Unread = messages
+// from the other participant with createdAt > lastReadAt.
+model ChatRead {
+  id         String   @id @default(uuid())
+  matchId    String
+  match      Match    @relation("MatchReads", fields: [matchId], references: [id])
+  userId     String
+  user       User     @relation("ChatReads", fields: [userId], references: [id])
+  lastReadAt DateTime @default(now())
+
+  @@unique([matchId, userId])
+  @@index([userId])
 }
 
 enum SwipeDirection {
