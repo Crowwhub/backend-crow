@@ -65,8 +65,42 @@ export class SwipesService {
     }
 
 
+    // Consecutive-day swipe streak. Any swipe (left or right) counts the day.
+    // Same day → unchanged; yesterday → +1; older/never → reset to 1.
+    private async bumpSwipeStreak(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { swipeStreak: true, lastSwipeAt: true },
+        });
+        if (!user) return;
+
+        const now = new Date();
+        const dayMs = 24 * 60 * 60 * 1000;
+        const startOfUTCDay = (d: Date) =>
+            Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+        const today = startOfUTCDay(now);
+        const last = user.lastSwipeAt ? startOfUTCDay(user.lastSwipeAt) : null;
+
+        let streak: number;
+        if (last === today) {
+            streak = user.swipeStreak; // already counted today
+        } else if (last !== null && last === today - dayMs) {
+            streak = user.swipeStreak + 1; // continued from yesterday
+        } else {
+            streak = 1; // first swipe ever, or streak broken
+        }
+
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { swipeStreak: streak, lastSwipeAt: now },
+        });
+    }
+
     async createSwipe(userID: string, dto: CreateSwipeDto) {
         const { swipedId, direction, intent, domain, filters } = dto;
+
+        // Count this swipe toward the user's daily streak (best-effort).
+        await this.bumpSwipeStreak(userID).catch(() => {});
 
         // Drop empty/undefined entries before persisting so the JSON column
         // doesn't carry useless keys.

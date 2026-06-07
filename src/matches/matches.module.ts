@@ -10,5 +10,6 @@ import { AuthModule } from '../auth/auth.module';
    imports: [AuthModule],
   controllers: [MatchesController ],
   providers: [MatchesService , PrismaService],
+  exports: [MatchesService],
 })
 export class MatchesModule {}

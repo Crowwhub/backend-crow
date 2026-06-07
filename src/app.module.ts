@@ -9,13 +9,14 @@ import { MatchesModule } from './matches/matches.module';
 import { ChatModule } from './chat/chat.module';
 import { UsersModule } from './users/users.module';
 import { ProfileLikesModule } from './profile-likes/profile-likes.module';
+import { HomeConfigModule } from './config/config.module';
 import { ConfigModule } from '@nestjs/config';
 
 
 
 
 @Module({
-  imports: [AuthModule , PrismaModule, FeedModule, SwipesModule, MatchesModule, ChatModule, UsersModule, ProfileLikesModule, ConfigModule.forRoot({
+  imports: [AuthModule , PrismaModule, FeedModule, SwipesModule, MatchesModule, ChatModule, UsersModule, ProfileLikesModule, HomeConfigModule, ConfigModule.forRoot({
     isGlobal: true,
   })],
   controllers: [AppController],

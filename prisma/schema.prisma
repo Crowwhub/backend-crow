@@ -41,6 +41,9 @@ model User {
   company            String?     // optional current company (typically for professionals)
   onboardingComplete Boolean @default(false)
 
+  swipeStreak        Int       @default(0)   // consecutive days with >= 1 swipe
+  lastSwipeAt        DateTime?               // last time the user swiped (drives streak)
+
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
