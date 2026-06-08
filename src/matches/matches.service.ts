@@ -10,6 +10,7 @@ const PUBLIC_USER_SELECT = {
     location: true,
     domain: true,
     personType: true,
+    aspirantOf: true,
     experience: true,
     skills: true,
     interests: true,

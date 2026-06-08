@@ -39,6 +39,7 @@ model User {
   currentlyWorkingOn String?
   college            String?     // optional school/university label
   company            String?     // optional current company (typically for professionals)
+  aspirantOf         String?     // exam/goal an Aspirant is preparing for, e.g. "UPSC", "GATE", "NEET PG"
   onboardingComplete Boolean @default(false)
 
   swipeStreak        Int       @default(0)   // consecutive days with >= 1 swipe

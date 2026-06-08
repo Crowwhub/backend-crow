@@ -15,6 +15,7 @@ const PROFILE_SELECT = {
   role: true,
   company: true,
   college: true,
+  aspirantOf: true,
   experience: true,
   experienceLevel: true,
   practiceYears: true,

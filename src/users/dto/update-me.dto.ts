@@ -51,6 +51,10 @@ export class UpdateMeDto {
   @IsOptional() @IsString() @MaxLength(120)
   college?: string;
 
+  // Exam/goal an Aspirant is preparing for (e.g. UPSC, GATE, NEET PG).
+  @IsOptional() @IsString() @MaxLength(120)
+  aspirantOf?: string;
+
   @IsOptional() @IsInt() @Min(0)
   experience?: number;
 
