@@ -43,6 +43,22 @@ export class ChatService {
         });
     }
 
+    // Total unread across all of the user's matches: messages from the other
+    // participant newer than the user's read marker (or all, if never read).
+    async unreadCount(userId: string) {
+        const rows = await this.prisma.$queryRaw<{ count: number }[]>`
+            SELECT COUNT(*)::int AS count
+            FROM "Chat" c
+            JOIN "Match" m ON m.id = c."matchId"
+            LEFT JOIN "ChatRead" r
+              ON r."matchId" = c."matchId" AND r."userId" = ${userId}
+            WHERE (m."user1Id" = ${userId} OR m."user2Id" = ${userId})
+              AND c."senderId" <> ${userId}
+              AND (r."lastReadAt" IS NULL OR c."createdAt" > r."lastReadAt")
+        `;
+        return { count: rows[0]?.count ?? 0 };
+    }
+
 
     async deleteMessage(matchId: string){
         await this .prisma.chat.deleteMany({

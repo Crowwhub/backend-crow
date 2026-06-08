@@ -14,6 +14,14 @@ export class ChatController {
     return this.chatService.getReads(req.user.sub);
   }
 
+  // GET /chat/unread-count -> total unread messages for the caller across all
+  // matches (messages from others newer than the user's read marker).
+  @UseGuards(JwtAuthGuard)
+  @Get('unread-count')
+  async unreadCount(@Req() req: { user: { sub: string } }) {
+    return this.chatService.unreadCount(req.user.sub);
+  }
+
   // POST /chat/:matchId/read -> mark the caller's read marker for a match to now.
   @UseGuards(JwtAuthGuard)
   @Post(':matchId/read')
