@@ -20,7 +20,6 @@ export class SwipesService {
         const where: Prisma.UserWhereInput = {
             id: { notIn: excludeIds },
             onboardingComplete: true,
-            domain: { in: domainVariants(dto.domain), mode: 'insensitive' },
             findMeFor: { hasSome: intentVariants(dto.intent) },
         };
 
@@ -40,9 +39,9 @@ export class SwipesService {
             where.skills = { has: dto.skill };
         }
 
-        const users = await this.prisma.user.findMany({
+        const candidates = await this.prisma.user.findMany({
             where,
-            take: dto.limit ?? 10,
+            take: 100,
             select: {
                 id: true,
                 name: true,
@@ -61,6 +60,13 @@ export class SwipesService {
                 currentlyWorkingOn: true,
             },
         });
+
+        // Match domain on a normalized key so label/slug variants all match
+        // (e.g. "Full-Stack Developer" == "fullstack-developer" == "full-stack-developer").
+        const targetDomain = normalizeDomain(dto.domain);
+        const users = candidates
+            .filter((u) => normalizeDomain(u.domain) === targetDomain)
+            .slice(0, dto.limit ?? 10);
 
         return users.map(u => ({ ...u, intent: dto.intent }));
     }
@@ -239,12 +245,9 @@ function intentVariants(intent: string): string[] {
     return Array.from(new Set([trimmed, lower, upper, capitalized]));
 }
 
-// Domain may be stored as label ("Software Developer") or slug ("software-developer")
-// depending on which onboarding path the user took. Match against both forms.
-function domainVariants(domain: string): string[] {
-    const trimmed = domain.trim();
-    const lower = trimmed.toLowerCase();
-    const slug = lower.replace(/\s+/g, '-');
-    const label = lower.replace(/-+/g, ' ');
-    return Array.from(new Set([trimmed, lower, slug, label]));
+// Domain may be stored as a label ("Full-Stack Developer") or a slug
+// ("fullstack-developer" / "full-stack-developer") depending on the onboarding
+// path. Normalize to a separator-free lowercase key so all forms compare equal.
+function normalizeDomain(domain?: string | null): string {
+    return (domain ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
