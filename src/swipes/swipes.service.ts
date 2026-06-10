@@ -52,6 +52,7 @@ export class SwipesService {
                 domain: true,
                 personType: true,
                 aspirantOf: true,
+                showcase: true,
                 experience: true,
                 skills: true,
                 interests: true,

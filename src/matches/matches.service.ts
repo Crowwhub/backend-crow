@@ -11,6 +11,7 @@ const PUBLIC_USER_SELECT = {
     domain: true,
     personType: true,
     aspirantOf: true,
+    showcase: true,
     experience: true,
     skills: true,
     interests: true,

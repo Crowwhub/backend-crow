@@ -40,6 +40,7 @@ model User {
   college            String?     // optional school/university label
   company            String?     // optional current company (typically for professionals)
   aspirantOf         String?     // exam/goal an Aspirant is preparing for, e.g. "UPSC", "GATE", "NEET PG"
+  showcase           Json?       // array of { title, type, description, link } the user has built/done
   onboardingComplete Boolean @default(false)
 
   swipeStreak        Int       @default(0)   // consecutive days with >= 1 swipe

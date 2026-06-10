@@ -16,6 +16,7 @@ const PROFILE_SELECT = {
   company: true,
   college: true,
   aspirantOf: true,
+  showcase: true,
   experience: true,
   experienceLevel: true,
   practiceYears: true,
