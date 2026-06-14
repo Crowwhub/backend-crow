@@ -37,10 +37,12 @@ model User {
   findMeFor          String[]    // ["Leetcode partner", "Co-founder", "Matiks squad", ...]
   goals              String[]
   currentlyWorkingOn String?
-  college            String?     // optional school/university label
+  college            String?     // college/university name, e.g. "IIT Bombay"
+  course             String?     // course/degree, e.g. "B.Tech"
   company            String?     // optional current company (typically for professionals)
   aspirantOf         String?     // exam/goal an Aspirant is preparing for, e.g. "UPSC", "GATE", "NEET PG"
   showcase           Json?       // array of { title, type, description, link } the user has built/done
+  profileCompletedAt DateTime?   // set when the profile first becomes "complete" (discovery nudge tracking)
   onboardingComplete Boolean @default(false)
 
   swipeStreak        Int       @default(0)   // consecutive days with >= 1 swipe

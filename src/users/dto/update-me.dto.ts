@@ -63,9 +63,13 @@ export class UpdateMeDto {
   @IsOptional() @IsString() @MaxLength(120)
   company?: string;
 
-  // School/university label. UI labels this "Education".
+  // College/university name (e.g. "IIT Bombay").
   @IsOptional() @IsString() @MaxLength(120)
   college?: string;
+
+  // Course/degree (e.g. "B.Tech").
+  @IsOptional() @IsString() @MaxLength(120)
+  course?: string;
 
   // Exam/goal an Aspirant is preparing for (e.g. UPSC, GATE, NEET PG).
   @IsOptional() @IsString() @MaxLength(120)

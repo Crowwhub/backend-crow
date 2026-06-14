@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma /prisma.service';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { isProfileComplete } from '../common/profile-completeness';
 
 const PROFILE_SELECT = {
   id: true,
@@ -15,8 +16,10 @@ const PROFILE_SELECT = {
   role: true,
   company: true,
   college: true,
+  course: true,
   aspirantOf: true,
   showcase: true,
+  profileCompletedAt: true,
   experience: true,
   experienceLevel: true,
   practiceYears: true,
@@ -59,11 +62,24 @@ export class UserService {
       data.exploringInterests = dto.interests;
     }
 
-    return this.prisma.user.update({
+    const updated = await this.prisma.user.update({
       where: { id: userId },
       data,
       select: PROFILE_SELECT,
     });
+
+    // Track who actually completes their profile: stamp the first time it
+    // becomes complete (company + education + showcase). Kept once set.
+    if (!updated.profileCompletedAt && isProfileComplete(updated)) {
+      const now = new Date();
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { profileCompletedAt: now },
+      });
+      updated.profileCompletedAt = now;
+    }
+
+    return updated;
   }
 
   async completeOnboarding(userId: string) {
