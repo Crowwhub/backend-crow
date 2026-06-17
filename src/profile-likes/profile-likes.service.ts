@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma /prisma.service';
 import { ToggleLikeDto } from './dto/toggle-like.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ProfileLikesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async toggle(likerId: string, dto: ToggleLikeDto) {
     if (dto.likedUserId === likerId) {
@@ -12,15 +16,22 @@ export class ProfileLikesService {
     }
 
     if (dto.liked) {
+      const key = {
+        likerId_likedUserId_itemKey: {
+          likerId,
+          likedUserId: dto.likedUserId,
+          itemKey: dto.itemKey,
+        },
+      };
+      // Was this already liked? Used to avoid re-notifying on a repeat like.
+      const existing = await this.prisma.profileLike.findUnique({
+        where: key,
+        select: { id: true },
+      });
+
       // Idempotent: ignore P2002 if the like already exists.
       await this.prisma.profileLike.upsert({
-        where: {
-          likerId_likedUserId_itemKey: {
-            likerId,
-            likedUserId: dto.likedUserId,
-            itemKey: dto.itemKey,
-          },
-        },
+        where: key,
         create: {
           likerId,
           likedUserId: dto.likedUserId,
@@ -28,6 +39,19 @@ export class ProfileLikesService {
         },
         update: {},
       });
+
+      // Notify only on a genuinely new like, never block on it.
+      if (!existing) {
+        await this.notifications
+          .create({
+            userId: dto.likedUserId,
+            type: 'PROFILE_INTERACTION',
+            actorId: likerId,
+            metadata: { itemKey: dto.itemKey },
+          })
+          .catch(() => undefined);
+      }
+
       return { liked: true };
     }
 

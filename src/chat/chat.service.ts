@@ -1,15 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma /prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 
 @Injectable()
 export class ChatService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private readonly notifications: NotificationsService,
+    ) {}
 
     async saveMessage(matchId: string, senderId: string, message : string) {
-        return this.prisma.chat.create({
-      data: { matchId, senderId, message },
-    });
+        const saved = await this.prisma.chat.create({
+            data: { matchId, senderId, message },
+        });
+
+        // Notify the OTHER participant. Best-effort — never block chat delivery.
+        this.prisma.match
+            .findUnique({
+                where: { id: matchId },
+                select: { user1Id: true, user2Id: true },
+            })
+            .then((match) => {
+                if (!match) return;
+                const recipientId =
+                    match.user1Id === senderId ? match.user2Id : match.user1Id;
+                return this.notifications.create({
+                    userId: recipientId,
+                    type: 'NEW_MESSAGE',
+                    actorId: senderId,
+                    metadata: {
+                        matchId,
+                        preview: message.slice(0, 140),
+                    },
+                });
+            })
+            .catch(() => undefined);
+
+        return saved;
     }
 
 

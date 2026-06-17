@@ -48,6 +48,11 @@ model User {
   swipeStreak        Int       @default(0)   // consecutive days with >= 1 swipe
   lastSwipeAt        DateTime?               // last time the user swiped (drives streak)
 
+  // Last time the user did anything authenticated on the platform. Bumped
+  // (throttled) by LastActiveInterceptor. Used by the email digest to SKIP
+  // emailing users who are currently active.
+  lastActiveAt       DateTime?
+
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -62,6 +67,9 @@ model User {
   chatReads      ChatRead[]  @relation("ChatReads")
   likesGiven     ProfileLike[] @relation("ProfileLikesGiven")
   likesReceived  ProfileLike[] @relation("ProfileLikesReceived")
+
+  notifications   Notification[]   @relation("UserNotifications")
+  emailDigestLogs EmailDigestLog[] @relation("UserEmailDigestLogs")
 }
 
 model ProfileLike {
@@ -187,4 +195,62 @@ model ChatRead {
 enum SwipeDirection {
   RIGHT
   LEFT
+}
+
+// A single in-app activity event for a recipient. Created at the moment the
+// activity happens (best-effort, never blocks the triggering action). It powers
+// both the in-app notifications surface and the 6-hourly email digest.
+//
+// Email-once guarantee: `emailedAt` is set ONLY after a digest containing this
+// row is delivered successfully. The digest query filters `emailedAt IS NULL`,
+// so a notification can never appear in two emails. `read = true` rows are also
+// excluded (user already saw it in-app → don't email about it).
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           // recipient
+  user      User             @relation("UserNotifications", fields: [userId], references: [id])
+  type      NotificationType
+  actorId   String?          // who triggered it (not a FK — kept lightweight)
+  metadata  Json?            // type-specific payload (matchId, itemKey, preview, …)
+  read      Boolean          @default(false)
+  readAt    DateTime?
+  emailedAt DateTime?        // set once included in a delivered digest; never re-emailed
+  createdAt DateTime         @default(now())
+
+  // Drives the digest collection query (unread + un-emailed, grouped per user).
+  @@index([userId, read, emailedAt])
+  @@index([userId, createdAt])
+}
+
+// One row per digest email attempt for a user. Gives a delivery audit trail,
+// retry bookkeeping (attempts/lastError), and dedup safety. FAILED rows are the
+// retry queue; the notifications themselves stay un-emailed until a SENT row.
+model EmailDigestLog {
+  id                String              @id @default(uuid())
+  userId            String
+  user              User                @relation("UserEmailDigestLogs", fields: [userId], references: [id])
+  status            EmailDeliveryStatus @default(PENDING)
+  notificationCount Int                 @default(0)
+  attempts          Int                 @default(0)
+  lastError         String?
+  providerMessageId String?             // e.g. Resend message id, for tracing
+  sentAt            DateTime?
+  createdAt         DateTime            @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  COLLAB_REQUEST
+  PROJECT_INVITE
+  NEW_MATCH
+  PROFILE_INTERACTION
+}
+
+enum EmailDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
 }

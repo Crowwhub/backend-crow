@@ -3,11 +3,15 @@ import { Prisma } from 'generated/prisma';
 import { PrismaService } from '../prisma /prisma.service';
 import { SwipeFeedDto } from './dto/swipe-feed.dto';
 import { CreateSwipeDto, SwipeDirection } from './dto/create-swipe.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 
 @Injectable()
 export class SwipesService {
-    constructor(private readonly prisma : PrismaService) {}
+    constructor(
+        private readonly prisma : PrismaService,
+        private readonly notifications: NotificationsService,
+    ) {}
 
 
     async swipefeed(userId: string, dto: SwipeFeedDto) {
@@ -124,6 +128,13 @@ export class SwipesService {
                 ? trimmedFilters
                 : null;
 
+        // Prior state of this pair's swipe — used so we only emit a
+        // COLLAB_REQUEST notification on a NEWLY-right swipe, not a repeat.
+        const priorSwipe = await this.prisma.swipe.findUnique({
+            where: { swiperId_swipedId: { swiperId: userID, swipedId } },
+            select: { direction: true },
+        });
+
         // Idempotent: a duplicate POST for the same (swiper, swiped) pair
         // updates rather than throwing P2002.
         const swipe = await this.prisma.swipe.upsert({
@@ -174,8 +185,34 @@ export class SwipesService {
                             intent: swipe.intent ?? existingSwipe.intent ?? null,
                         },
                     });
+                    // Brand-new match → notify BOTH users (each actor = the other).
+                    await Promise.all([
+                        this.notifications.create({
+                            userId: swipedId,
+                            type: 'NEW_MATCH',
+                            actorId: userID,
+                        }),
+                        this.notifications.create({
+                            userId: userID,
+                            type: 'NEW_MATCH',
+                            actorId: swipedId,
+                        }),
+                    ]).catch(() => undefined);
                 }
                 return { swipe, ismatch: true };
+            }
+
+            // No reciprocal yet → this is an outgoing collaboration request.
+            // Notify the recipient only when the swipe first becomes RIGHT.
+            if (priorSwipe?.direction !== 'RIGHT') {
+                await this.notifications
+                    .create({
+                        userId: swipedId,
+                        type: 'COLLAB_REQUEST',
+                        actorId: userID,
+                        metadata: { intent: swipe.intent ?? null },
+                    })
+                    .catch(() => undefined);
             }
             return { swipe, ismatch: false };
         }
